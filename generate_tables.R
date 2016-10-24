@@ -8,29 +8,25 @@ rep21 = c(base, "gdna1", "gdna2", "rna1")
 rep11 = c(base, "gdna1", "rna1")
 
 fnames = list(
-pI = "/data/I/I_rep1_ipcr_iPCR_insertions.txt")
-#p8 = c("p8/p8_RA_7077_ACTTGA_iPCR_insertions.txt",
-#       "p8/p8_RB_7082_TTAGGC_iPCR_insertions.txt"),
-#p38 = c("p38/p38_10K_7233_TTAGGC_iPCR_insertions.txt",
-#        "p38/p38_20K_7239_GATCAG_iPCR_insertions.txt"),
-#p39 = c("p39/p40_10K_7235_ACAGTG_iPCR_insertions.txt",
-#        "p39/p39_20K_7240_TAGCTT_iPCR_insertions.txt"),
-#p40 = c("p40/p39_10K_7234_TGACCA_iPCR_insertions.txt",
-#        "p40/p40_20K_7241_GGCTAC_iPCR_insertions.txt"),
-#p41 = c("p41/p41_10K_7236_GCCAAT_iPCR_insertions.txt",
-#        "p41/p41_20K_7242_CTTGTA_iPCR_insertions.txt"),
-#p14 = c("p14/p14_RA_7080_GGCTAC_iPCR_insertions.txt",
-#        "p14/p14_RB_7085_GCCAAT_iPCR_insertions.txt")
 
+pII = c("/data/II/II_rep1_ipcr_iPCR_insertions.txt",
+       "/data/II/II_rep2_ipcr_iPCR_insertions.txt"),
+pIII = c("/data/III/III_rep1_ipcr_iPCR_insertions.txt",
+        "/data/III/III_rep2_ipcr_iPCR_insertions.txt"),
+pIV = c("/data/IV/IV_rep1_ipcr_iPCR_insertions.txt",
+        "/data/IV/IV_rep2_ipcr_iPCR_insertions.txt"),
+pI = c("/data/I/I_rep1_ipcr_iPCR_insertions.txt",
+        "/data/I/I_rep2_ipcr_iPCR_insertions.txt"),
+p0 = c("/data/0/0_rep1_ipcr_iPCR_insertions.txt",
+        "/data/0/0_rep2_ipcr_iPCR_insertions.txt")
+)
 
 avail = list(
-   pI  = list(rep22),
-   p8  = list(rep22, rep22),
-   p38 = list(rep11, rep11),
-   p39 = list(rep11, rep11),
-   p40 = list(rep11, rep11),
-   p41 = list(rep11, rep11),
-   p14 = list(rep21, rep21)
+   pII  = list(rep22, rep22),
+   pIII = list(rep11, rep11),
+   pIV = list(rep11, rep11),
+   pI = list(rep11, rep11),
+   p0 = list(rep21, rep21)
 )
 
 dflist = list()
