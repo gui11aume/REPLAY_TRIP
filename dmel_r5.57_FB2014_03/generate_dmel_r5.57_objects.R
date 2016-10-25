@@ -5,14 +5,14 @@ GFF_names = c("seqnames", "source", "feature",
    "start", "end", "score", "strand", "frame", "attr")
 
 # Read exons and genes from GFF files.
-exons = read.table("dmel-all-exons-r5.57.gff", sep="\t", quote="")
-genes = read.table("dmel-all-genes-r5.57.gff", sep="\t", quote="")
+exons = read.table("data/dmel-all-exons-r5.57.gff", sep="\t", quote="")
+genes = read.table("data/dmel-all-genes-r5.57.gff", sep="\t", quote="")
 
 colnames(exons) = GFF_names
 colnames(genes) = GFF_names
 
 # Get expression from RNA seq obtained in the lab.
-Kc_expression = read.table("Kc_exp_color_MC.txt")
+Kc_expression = read.table("data/Kc_exp_color_MC.txt")
 active_FBgn = with(Kc_expression, V7[V5 > median(V5)])
 
 # Use it to separate active versus inactive genes.
