@@ -35,7 +35,7 @@ for (i in 1:5) {
 
 COL = colorRampPalette(c("seagreen3","royalblue4","purple4"))(6)
 
-pdf("SuppFigX.pdf", useDingbats=FALSE, height=5, width=7)
+pdf("SuppFigXa.pdf", useDingbats=FALSE, height=5, width=7)
 barplot(matexons, beside=TRUE, names.arg=promoters,
   ylab="Median expression (log2)", col=rep(COL, each=4))
 legend(x="topright", bty="n", cex=.8,
