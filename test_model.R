@@ -1,42 +1,52 @@
 require(GenomicRanges)
 
-#diags = read.table("20diags.txt.gz")
-# Read in TRIP data.
 a = subset(read.delim("allprom.txt"), prom != "p0")
-ga = GRanges(Rle(a$chr), IRanges(start=a$pos, width=1))
+ga = GRanges(Rle(a$chr), IRanges(a$pos, width=1), nexp=a$nexp)
 
-#prop5 = rowSums(diags[,5:6]) / rowSums(diags[,4:ncol(diags)])
-#save(prop5, file="/data/prop5.rda")
+# Predictive powers of the models.
+predpow = rep(NA, 118)
 
-#gdiags = GRanges(Rle(diags$V1),
-#   IRanges(start=diags$V2, end=diags$V3))
+# Get the segmentation in 5 colors and 9 states.
+C5 = read.delim("color_domains.txt")
+gC5 = GRanges(Rle(C5$chr), IRanges(start=C5$start, end=C5$end),
+   col=C5$col)
 
-#ov = as.matrix(findOverlaps(ga, gdiags))
-#x = prop5[ov[,2]]
-#y = a$nexp[ov[,1]]
-#lm(y~x)
-#anova(lm(y~x))
+S9 = read.table("modENCODE_9states.txt")
+gS9 = GRanges(Rle(S9$V2), IRanges(start=S9$V3, end=S9$V4),
+   state=as.integer(S9$V1))
+
+# Compute the predictive power of these models directly
+# i.e. without binning by 2000 because it would break
+# the domains.
+
+ov = findOverlaps(ga, gC5)
+y = mcols(ga[queryHits(ov)])$nexp
+x = mcols(gC5[subjectHits(ov)])$col
+
+modC5 = lm(y ~ x)
+predpow[117] = var(modC5$fitted.values) /
+   (var(modC5$residuals + modC5$fitted.values))
+
+ov = findOverlaps(ga, gS9)
+y = mcols(ga[queryHits(ov)])$nexp
+x = as.factor(mcols(gS9[subjectHits(ov)])$state)
+
+modS9 = lm(y ~ x)
+predpow[118] = var(modS9$fitted.values) /
+   (var(modS9$residuals + modS9$fitted.values))
 
 load("/data/potEF1.rda")
 load("/data/potGSE.rda")
 load("/data/potprom.rda")
 load("/data/poterm.rda")
-#load("potCAGE.rda")
-#load("potall.rda")
-#load("nopotall.rda")
-#load("nopotprom.rda")
-#load("potpromY.rda")
 
+# Make bins of 2000. This is the basic unit of the HiC
+# and reporters expression is averaged in such bins.
 makepos = function(x) seq(from=1, by=2000, length.out=x)
 lEF1 = sapply(pot.EF1, length)
 lGSE = sapply(pot.GSE, length)
 lprom = sapply(pot.prom, length)
 lterm = sapply(pot.term, length)
-#lCAGE = sapply(pot.CAGE, length)
-#lall = sapply(pot.all, nrow)
-#lnoall = sapply(nopot.all, nrow)
-#lnoprom = sapply(nopot.prom, length)
-#lpromY = sapply(pot.promY, length)
 
 
 EF1 = data.frame(chr=rep(names(pot.EF1), times=lEF1),
@@ -51,53 +61,35 @@ prom = data.frame(chr=rep(names(pot.prom), times=lprom),
 term = data.frame(chr=rep(names(pot.term), times=lterm),
          pos=unlist(sapply(lterm, makepos)),
          value=log(0.01+unlist(pot.term)))
-#CAGE = data.frame(chr=rep(names(pot.CAGE), times=lCAGE),
-#         pos=unlist(sapply(lCAGE, makepos)), value=log(unlist(pot.CAGE)))
-#aall = data.frame(chr=rep(names(pot.all), times=lall),
-#         pos=unlist(sapply(lall, makepos)) , Reduce(rbind, pot.all))
-#noaall = data.frame(chr=rep(names(nopot.all), times=lnoall),
-#         pos=unlist(sapply(lnoall, makepos)) , Reduce(rbind, nopot.all))
-#noprom = data.frame(chr=rep(names(nopot.prom), times=lnoprom),
-#         pos=unlist(sapply(lnoprom, makepos)), value=unlist(nopot.prom))
-#promY = data.frame(chr=rep(names(pot.promY), times=lpromY),
-#         pos=unlist(sapply(lpromY, makepos)), value=unlist(pot.promY))
 
 gEF1 = GRanges(Rle(EF1$chr), IRanges(start=EF1$pos, width=2000))
 gGSE = GRanges(Rle(GSE$chr), IRanges(start=GSE$pos, width=2000))
 gprom = GRanges(Rle(prom$chr), IRanges(start=prom$pos, width=2000))
 gterm = GRanges(Rle(term$chr), IRanges(start=term$pos, width=2000))
-#gCAGE = GRanges(Rle(CAGE$chr), IRanges(start=CAGE$pos, width=2000))
-#gall = GRanges(Rle(aall$chr), IRanges(start=aall$pos, width=2000))
-#gnoall = GRanges(Rle(noaall$chr), IRanges(start=noaall$pos, width=2000))
-#gnoprom = GRanges(Rle(noprom$chr), IRanges(start=noprom$pos, width=2000))
-#gpromY = GRanges(Rle(promY$chr), IRanges(start=promY$pos, width=2000))
 
-
-predpow = rep(NA, 116)
-
+# Use the 'GRanges' of EF1 as defnition of the bins
+# (they are all identical, but we need one). Use
+# overlap and compute the average per bin.
 ov = as.matrix(findOverlaps(ga, gEF1))
 val = tapply(INDEX=ov[,2], X=a$nexp[ov[,1]], mean)
 y = rep(NA, nrow(EF1))
 y[as.integer(names(val))] = val
 
-#x1 = EF1$value[ov[,2]]
-#z1 = EF1$value[ov[,2]]^2
+x1 = EF1$value;  z1 = x1^3
+x2 = GSE$value;  z2 = x2^3
+x3 = prom$value; z3 = x3^3
+x4 = term$value; z4 = x4^3
 
-x1 = EF1$value
-x2 = GSE$value
-x3 = prom$value
-x4 = term$value
-
-mod1 = lm(y ~ x1+x1^2)
+mod1 = lm(y ~ x1+z1)
 predpow[1] = var(mod1$fitted.values) /
    (var(mod1$residuals + mod1$fitted.values))
-mod2 = lm(y ~ x2+x2^3)
+mod2 = lm(y ~ x2+z2)
 predpow[2] = var(mod2$fitted.values) /
    (var(mod2$residuals + mod2$fitted.values))
-mod3 = lm(y ~ x3+x3^3)
+mod3 = lm(y ~ x3+z3)
 predpow[3] = var(mod3$fitted.values) /
    (var(mod3$residuals + mod3$fitted.values))
-mod4 = lm(y ~ x4+x4^3)
+mod4 = lm(y ~ x4+z4)
 predpow[4] = var(mod4$fitted.values) /
    (var(mod4$residuals + mod4$fitted.values))
 
@@ -111,15 +103,17 @@ ov = as.matrix(findOverlaps(gGSE, gEF1))
 for (i in 1:112) {
    val = tapply(INDEX=ov[,2], X=GSE[ov[,1],i+4], mean)
    x = rep(NA, nrow(EF1))
-   x[as.integer(names(val))] = val
-   mod = lm(y ~ x+x^3)
+   x[as.integer(names(val))] = val; z = x^3
+   mod = lm(y ~ x+z)
    predpow[i+4] = var(mod$fitted.values) /
       (var(mod$residuals + mod$fitted.values))
    nm = colnames(GSE)[i+4]
    variables[[paste(nm, 1, sep="_")]] = x
-   variables[[paste(nm, 2, sep="_")]] = x^3
+   variables[[paste(nm, 2, sep="_")]] = z
 }
 
+names(predpow) = c("EF1", "GSE", "prom", "term", 
+   colnames(GSE)[-(1:4)], "C5", "S9")
 save(predpow, file="predpow.rda")
 
 dat = data.frame(y, as.data.frame(variables))

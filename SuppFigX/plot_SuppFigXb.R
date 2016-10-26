@@ -14,10 +14,41 @@ ovintrons = ov(ga, introns_r5.57, ignore.strand=TRUE)
 
 # Remove insertions in introns and exons.
 a = subset(a, !ovexons & !ovintrons)
-print(dim(a))
-ga = GRanges(Rle(a$chr), IRanges(a$pos, width=1))
+ga = GRanges(Rle(a$chr), IRanges(a$pos, width=1), nexp=a$nexp)
 
 ###########     Begin copy/paste     #########
+
+predpow_out_genes = rep(NA, 118)
+
+# Get the segmentation in 5 colors and 9 states.
+C5 = read.delim("../color_domains.txt")
+gC5 = GRanges(Rle(C5$chr), IRanges(start=C5$start, end=C5$end),
+   col=C5$col)
+
+S9 = read.table("../modENCODE_9states.txt")
+gS9 = GRanges(Rle(S9$V2), IRanges(start=S9$V3, end=S9$V4),
+   state=as.integer(S9$V1))
+
+# Compute the predictive power of these models directly
+# i.e. without binning by 2000 because it would break
+# the domains.
+
+ov = findOverlaps(ga, gC5)
+y = mcols(ga[queryHits(ov)])$nexp
+x = mcols(gC5[subjectHits(ov)])$col
+
+modC5 = lm(y ~ x)
+predpow_out_genes[117] = var(modC5$fitted.values) /
+   (var(modC5$residuals + modC5$fitted.values))
+
+ov = findOverlaps(ga, gS9)
+y = mcols(ga[queryHits(ov)])$nexp
+x = as.factor(mcols(gS9[subjectHits(ov)])$state)
+
+modS9 = lm(y ~ x)
+predpow_out_genes[118] = var(modS9$fitted.values) /
+   (var(modS9$residuals + modS9$fitted.values))
+
 
 load("/data/potEF1.rda")
 load("/data/potGSE.rda")
@@ -48,8 +79,6 @@ gEF1 = GRanges(Rle(EF1$chr), IRanges(start=EF1$pos, width=2000))
 gGSE = GRanges(Rle(GSE$chr), IRanges(start=GSE$pos, width=2000))
 gprom = GRanges(Rle(prom$chr), IRanges(start=prom$pos, width=2000))
 gterm = GRanges(Rle(term$chr), IRanges(start=term$pos, width=2000))
-
-predpow_out_genes = rep(NA, 116)
 
 ov = as.matrix(findOverlaps(ga, gEF1))
 val = tapply(INDEX=ov[,2], X=a$nexp[ov[,1]], mean)
@@ -101,6 +130,6 @@ predpow_out_genes = predpow_out_genes[order(predpow, decreasing=TRUE)]
 
 pdf("SuppFigXb.pdf", useDingbats=FALSE, height=5, width=7)
 barplot(predpow_out_genes, ylab="Predictive power", axisnames=FALSE)
-title(xlab="Features in the same order as in Figure 4b", line=.5)
+title(xlab="Features in the same order as in Figure 4a", line=.5)
 dev.off()
 
