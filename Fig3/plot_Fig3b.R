@@ -1,5 +1,5 @@
 # Read in the insertion data.
-a = read.delim("allprom_nochromP.txt", as.is=TRUE)
+a = read.delim("../allprom_nochromP.txt", as.is=TRUE)
 a = subset(a, prom != "p0")
 
 # Subset promoter II vs all the rest on chromosome 2L.
@@ -19,7 +19,7 @@ ovnII = countOverlaps(ganII, gdom0) > 0
 # These are seagreen3 and purple4 with transparency.
 colors = c("#43CD8070", "#551A8B70")
 
-pdf("domains.pdf", height=6, width=10)
+pdf("Fig3b.pdf", height=6, width=10)
 plot(aII$pos/1e6, aII$nexp,
      xlim=c(10,20),
      type="h", bty="n", yaxt="n", ylab="",
