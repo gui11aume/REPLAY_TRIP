@@ -19,7 +19,6 @@ l = tapply(X=a$nexp[ov[,1]], INDEX=coldoms$col[ov[,2]], c)
 ord = order(c("BLACK","RED", "YELLOW", "BLUE", "GREEN"))
 colors=c("black","red", "gold2", "blue", "seagreen3")
 
-pdf("Fig3d.pdf", width=4, height=4)
+pdf("Fig3d.pdf", width=4, height=4, useDingbats=FALSE)
 violin.plot(l[ord], col=colors)
 dev.off()
-

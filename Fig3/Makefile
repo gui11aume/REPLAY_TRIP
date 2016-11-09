@@ -4,7 +4,7 @@
 #ACTGENES  = act_genes_r5.57.txt
 #SCORES4C  = scores4C.txt
 
-all: gdom0.rda gdom1.rda Fig3a.pdf Fig3b.pdf Fig3c.pdf Fig3d.pdf
+all: gdom0.rda gdom1.rda Fig3a.pdf Fig3b.pdf Fig3c.pdf Fig3d.pdf Fig3e.pdf
 
 gdom%.rda:
 	R -f make_domains.R
@@ -21,5 +21,8 @@ Fig3c.pdf: gdom0.rda gdom1.rda
 Fig3d.pdf: gdom0.rda gdom1.rda
 	R -f plot_Fig3d.R
 
+Fig3e.pdf: gdom0.rda gdom1.rda
+	R -f plot_Fig3e.R
+
 clean:
-	rm -f gdom0.rda gdom1.rda
+	rm -f gdom0.rda gdom1.rda Fig3*.pdf

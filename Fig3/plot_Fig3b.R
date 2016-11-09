@@ -19,7 +19,7 @@ ovnII = countOverlaps(ganII, gdom0) > 0
 # These are seagreen3 and purple4 with transparency.
 colors = c("#43CD8070", "#551A8B70")
 
-pdf("Fig3b.pdf", height=6, width=10)
+pdf("Fig3b.pdf", height=6, width=10, useDingbats=FALSE)
 plot(aII$pos/1e6, aII$nexp,
      xlim=c(10,20),
      type="h", bty="n", yaxt="n", ylab="",

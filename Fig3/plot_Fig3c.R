@@ -15,7 +15,8 @@ for (thisprom in c("p0","pI","pII","pIII","pIV")) {
    allvio = c(allvio, list(dom0$nexp, dom1$nexp))
 }
 COL = colorRampPalette(c("seagreen3", "royalblue4","purple4"))(6)
-pdf("Fig3c.pdf", height=4, width=4)
+
+pdf("Fig3c.pdf", height=4, width=4, useDingbats=FALSE)
 violin.plot(allvio, col=rep(COL, each=2),
    x.pos=c(1,2, 4,5, 7,8, 10,11, 13,14))
 dev.off()
